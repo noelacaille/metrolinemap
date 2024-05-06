@@ -83,6 +83,15 @@ class MetroLineMap:
             return sorted(list(set(corresp_list)), key=self._sort_int_key)
         return sorted(list(set(corresp_list)))
 
+    def _get_layout(self, nbcorr):
+        # format d'affichage des correspondances en fonction du nombre de lignes par catégorie modale
+        # disposition : 1 [1], 2 [2], 3 [3], 4 [2, 2], 5 [3, 2], 6 [3, 3], 7 [3, 3, 1], 8 [3, 3, 2], etc
+        if nbcorr <= 3:
+            return [nbcorr]
+        elif nbcorr == 4:
+            return [2, 2]
+        return [3]*(nbcorr//3) + ([nbcorr%3] if nbcorr%3 else [])
+
     def generate_map(self, open_image: bool = True) -> None:
 
         self.dwg = svgwrite.Drawing(self.path, profile='full')
@@ -90,7 +99,7 @@ class MetroLineMap:
         for font in self.fonts:
             self.dwg.embed_font(font, self.fonts[font])
 
-        spacing = 50
+        spacing = 35
         angle = 30
         linewidth = 4.5
         circlerad = 4
@@ -98,25 +107,26 @@ class MetroLineMap:
         img_width = 9
         font_size = 9
         font_2ndsize = 4
+        subtitle_spacing = 10
         
         self.pfxcorresp_dict = {'M': int, 'T': int, 'C': int, 'B': int, 'R': str, 'S': str}
         pfxcorresp = list(self.pfxcorresp_dict)
         pfxcorresp.extend([f'p:{i}' for i in pfxcorresp])
 
-        self.draw_line(w0, h0, w0+(self.n-1)*spacing, h0, color=self.color, stroke_width=linewidth)
-        for i, station in enumerate(self.stations):
-            x, y = w0 + i*spacing, h0
-            terminus = (i == 0) or (i == self.n-1)
+        last_station = ''
+        max_nbcorr = 0
+        x, y = w0, h0
+        for station_idx, station in enumerate(self.stations):
+            x, y = x + max_nbcorr*(img_width/2), h0
+            if station_idx > 0:
+                x += spacing
+            nx = x + spacing + subtitle_spacing
+            if last_station and self.stations[last_station][0] is not None:  # si nom_sec station precedente
+                x += subtitle_spacing
+                nx += subtitle_spacing
+            last_station = station
+            terminus = (station_idx == 0) or (station_idx == self.n-1)
             nom_sec, corresp = self.stations[station]
-
-            # cercle station
-            if terminus:
-                self.draw_circle(x, y, circlerad, color=WHITE, stroke_width=1)
-                self.draw_circle(x, y, 3/5*circlerad, color=self.color)
-            elif bool(corresp):
-                self.draw_circle(x, y, circlerad, color=WHITE, stroke_width=1)
-            else:
-                self.draw_circle(x, y, circlerad, color=self.color)
 
             # texte station
             if terminus:
@@ -140,6 +150,7 @@ class MetroLineMap:
                                    angle=angle, color=BLEU_PARISINE, lil=True)
 
             # correspondances
+            max_nbcorr = 0
             dictcorresp = {key: self._sort_corresp([i[len(key):] for i in corresp if i.startswith(key)], key) \
                            for key in pfxcorresp}
             c = 0.5
@@ -152,16 +163,7 @@ class MetroLineMap:
                                         img_width, img_width)
                     self.draw_image(f"img/{i.lstrip('p:')}.png", xx, yy, img_width, img_width)
                     
-                    # format d'affichage des correspondances en fonction du nombre de lignes par catégorie modale
-                    # disposition : 1 [1], 2 [2], 3 [3], 4 [2, 2], 5 [3, 2], 6 [3, 3], 7 [3, 3, 1], 8 [3, 3, 2], etc
-                    nbcorr = len(dictcorresp[i])
-                    if nbcorr <= 3:
-                        layout = [nbcorr]
-                    elif nbcorr == 4:
-                        layout = [2, 2]
-                    else:
-                        layout = [3]*(nbcorr//3) + ([nbcorr%3] if nbcorr%3 else [])
-                    
+                    layout = self._get_layout(len(dictcorresp[i]))
                     idx = 0
                     line_idx = 0
                     for j in dictcorresp[i]:
@@ -172,9 +174,25 @@ class MetroLineMap:
                         self.draw_image(f"img/{i.lstrip('p:')}{j}.png", xx+(idx+1)*(img_width+1), y+c*(img_width+2)+2,
                                         img_width, img_width)
                         idx += 1
+                        if idx > max_nbcorr:
+                            max_nbcorr = idx
                     c += 1
                     self.draw_line(cx, cy+0.3, xx+img_width/2, yy-0.3, color=BLEU_PARISINE)
                     cx, cy = xx+img_width/2, yy+img_width
+
+            # ligne (nx : calcul coordonnée x de la prochaine station)
+            if station_idx < self.n-1:
+                nx += max_nbcorr*(img_width/2)
+                self.draw_line(x, y, nx, y, color=self.color, stroke_width=linewidth)
+
+            # cercle station
+            if terminus:
+                self.draw_circle(x, y, circlerad, color=WHITE, stroke_width=1)
+                self.draw_circle(x, y, 3/5*circlerad, color=self.color)
+            elif bool(corresp):
+                self.draw_circle(x, y, circlerad, color=WHITE, stroke_width=1)
+            else:
+                self.draw_circle(x, y, circlerad, color=self.color)
 
         self.dwg.save()
 

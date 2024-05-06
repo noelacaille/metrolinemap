@@ -10,7 +10,7 @@ M14_data = {
         'Châtelet': [None, ['M1', 'M4', 'M7', 'M11', 'RA', 'RB', 'RD']],
         'Gare de Lyon': ['Gare Grandes Lignes', ['M1', 'RA', 'RD', 'SR']],
         'Bercy': ['Gare Grandes Lignes', ['M6']],
-        'Cour Saint-Émilion': [None, []],
+        'Cour Saint-Émilion': ['Bercy Village', []],
         'Bibliothèque François Mitterrand': [None, ['RC']],
         'Olympiades': [None, []],
         'Maison Blanche': [None, ['M7', 'p:T3a']],
@@ -78,7 +78,3 @@ C2_data = {
 # format 'Nom station': ['Nom secondaire', [correspondances]]
 # prefixes nom secondaires : m: (monument), 'Gare Grandes Lignes' ou rien (autres)
 # prefixes correspondances : M (Metro), T (Tram), C (Cable), B (BHNS), R (RER), S (Transilien) ou p: (a pied)
-
-if __name__ == '__main__':
-    import metrolinemap
-    dir(metrolinemap)
