@@ -75,6 +75,23 @@ C2_data = {
         'Malabry': ['Vallée aux Loups', ['T10']]
     }
 
+T11_data = {
+        'Mitry - Claye': [None, ['RB', 'SK']],
+        'Gressy': [None, []],
+        'Claye-Souilly': [None, []],
+        'Fresnes - Annet': [None, []],
+        'Jablines': [None, []],
+        'Esbly': [None, ['RA', 'SP']],
+        'Champs Fort': [None, []],
+        'Montry - Condé': [None, []],
+        'Couilly - Saint-Germain - Quincy': [None, []],
+        'Villiers - Montbarbin': [None, []],
+        'Crécy-la-Chapelle': [None, []],
+        'Libernon': [None, []],
+        'Dammartin-sur-Tigeaux': [None, []],
+        'Guérard - La Celle-sur-Morin': [None, ['SP']]
+    }
+
 # format 'Nom station': ['Nom secondaire', [correspondances]]
 # prefixes nom secondaires : m: (monument), 'Gare Grandes Lignes' ou rien (autres)
 # prefixes correspondances : M (Metro), T (Tram), C (Cable), B (BHNS), R (RER), S (Transilien) ou p: (a pied)

@@ -69,7 +69,7 @@ class MetroLineMap:
 
     def draw_pixel(self, x, y, c=1, color='red'):
         self.dwg.add(self.dwg.rect(insert=(x-c/2, y-c/2), size=(f'{c}px', f'{c}px'), fill=color))
-    
+
     def _sort_int_key(self, item):
         try:
             if item.endswith('a') or item.endswith('b'):
@@ -90,7 +90,7 @@ class MetroLineMap:
             return [nbcorr]
         elif nbcorr == 4:
             return [2, 2]
-        return [3]*(nbcorr//3) + ([nbcorr%3] if nbcorr%3 else [])
+        return [3]*(nbcorr//3) + ([nbcorr % 3] if nbcorr % 3 else [])
 
     def generate_map(self, open_image: bool = True) -> None:
 
@@ -108,22 +108,20 @@ class MetroLineMap:
         font_size = 9
         font_2ndsize = 4
         subtitle_spacing = 10
-        
+
         self.pfxcorresp_dict = {'M': int, 'T': int, 'C': int, 'B': int, 'R': str, 'S': str}
         pfxcorresp = list(self.pfxcorresp_dict)
         pfxcorresp.extend([f'p:{i}' for i in pfxcorresp])
 
         last_station = ''
         max_nbcorr = 0
-        x, y = w0, h0
+        nx, y = w0, h0
         for station_idx, station in enumerate(self.stations):
-            x, y = x + max_nbcorr*(img_width/2), h0
-            if station_idx > 0:
-                x += spacing
-            nx = x + spacing + subtitle_spacing
-            if last_station and self.stations[last_station][0] is not None:  # si nom_sec station precedente
-                x += subtitle_spacing
+            x = nx
+            nx += spacing
+            if last_station and self.stations[station][0] is not None:
                 nx += subtitle_spacing
+
             last_station = station
             terminus = (station_idx == 0) or (station_idx == self.n-1)
             nom_sec, corresp = self.stations[station]
@@ -162,7 +160,7 @@ class MetroLineMap:
                         self.draw_image("img/pieds.png", xx-img_width, yy,
                                         img_width, img_width)
                     self.draw_image(f"img/{i.lstrip('p:')}.png", xx, yy, img_width, img_width)
-                    
+
                     layout = self._get_layout(len(dictcorresp[i]))
                     idx = 0
                     line_idx = 0
@@ -204,3 +202,6 @@ class MetroLineMap:
 if __name__ == '__main__':
     M14 = MetroLineMap('M14', '#662483', data.M14_data)
     M14.generate_map()
+
+    # T11 = MetroLineMap('T11', '#F28F40', data.T11_data)
+    # T11.generate_map()
