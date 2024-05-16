@@ -11,6 +11,30 @@ BLEU_PARISINE = '#1A3C90'
 CUIVRE = '#8D5E2A'
 
 
+class CouleursIDFM:
+    NOIR = '#25303B'
+    ROUGE = '#E3051C'
+    ORANGE = '#F28E42'
+    JAUNE = '#FFCE00'
+    OCRE = '#E3B32A'
+    MARRON = '#8D5E2A'
+    VERT_CLAIR = '#D5C900'
+    VERT_KAKI = '#9F9825'
+    VERT_FONCE = '#00814F'
+    VERT_POMME = '#83C491'
+    TURQUOISE = '#00A88F'
+    BLEU_CIEL = '#98D4E2'
+    BLEU_AZUR = '#5291CE'
+    BLEU_FONCE = '#0064B0'
+    VIOLET = '#662483'
+    FUSHIA = '#C04191'
+    MAUVE = '#CEADD2'
+    ROSE = '#F3A4BA'
+    BORDEAUX = '#F3A4BA'
+    GRIS_FONCE = '#706F6F'
+    GRIS_CLAIR = '#C6C6C6'
+
+
 def get_text_width(text, font_path, font_size):
     img = Image.new('RGB', (1, 1), color='white')
     draw = ImageDraw.Draw(img)
@@ -21,11 +45,12 @@ def get_text_width(text, font_path, font_size):
 
 class MetroLineMap:
 
-    def __init__(self, name: str, color: str, stations: list, path: str = '') -> None:
+    def __init__(self, name: str, color: str, stations: list, path_logo: str = '', path_out: str = '') -> None:
         self.name = name
         self.color = color
         self.stations = stations
-        self.path = path if path else name+'.svg'
+        self.path_logo = path_logo if path_logo else 'img/'+name+'.svg'
+        self.path_out = path_out if path_out else name+'.svg'
         self.dwg = None
         self.n = len(self.stations)
         self.fonts = {'Parisine-Regular': 'fonts/Parisine Regular.otf',
@@ -43,10 +68,13 @@ class MetroLineMap:
         if bgcolor:
             testfontpath = self.fonts[font_family] if font_family in self.fonts else 'Arial'
             rw, rh = get_text_width(text, testfontpath, font_size)
-            if lil:
-                rw, rh = 1.2*rw, 0.8*rh
+            # if lil:
+            #     pass
             group = self.dwg.add(svgwrite.container.Group())
-            group.add(self.dwg.rect(insert=(x, y-rh), size=(rw+2, rh+3), fill=bgcolor))
+            if lil:
+                group.add(self.dwg.rect(insert=(x, y-rh), size=(rw, rh), fill=bgcolor))
+            else:
+                group.add(self.dwg.rect(insert=(x, y-rh), size=(rw+2, rh+3), fill=bgcolor))
             group.add(self.dwg.text(text, insert=(x+2, y), fill=color,
                                     style=f"font-family:{font_family};font-size:{size};"))
             group.rotate(-angle, center=(x, y))
@@ -94,7 +122,7 @@ class MetroLineMap:
 
     def generate_map(self, open_image: bool = True) -> None:
 
-        self.dwg = svgwrite.Drawing(self.path, profile='full')
+        self.dwg = svgwrite.Drawing(self.path_out, profile='full')
 
         for font in self.fonts:
             self.dwg.embed_font(font, self.fonts[font])
@@ -107,11 +135,14 @@ class MetroLineMap:
         img_width = 9
         font_size = 9
         font_2ndsize = 4
+        spacing_2ndname = 12
         subtitle_spacing = 10
 
         self.pfxcorresp_dict = {'M': int, 'T': int, 'C': int, 'B': int, 'R': str, 'S': str}
         pfxcorresp = list(self.pfxcorresp_dict)
         pfxcorresp.extend([f'p:{i}' for i in pfxcorresp])
+        
+        self.draw_image(f'img/{self.name[1:]}.png', 100, 100, 200, 200)
 
         last_station = ''
         max_nbcorr = 0
@@ -136,7 +167,7 @@ class MetroLineMap:
 
             # texte secondaire station
             if nom_sec is not None:
-                sx, sy = x+15, y-8
+                sx, sy = x+spacing_2ndname, y-8
                 if nom_sec.startswith('m:'):
                     self.draw_text(nom_sec[2:], sx, sy, font_family='Parisine-Bold-Italic', font_size=font_2ndsize,
                                    angle=angle, color=WHITE, bgcolor=CUIVRE, lil=True)
@@ -196,12 +227,8 @@ class MetroLineMap:
 
         if open_image:
             navig = {'linux': 'xdg-open', 'win32': 'explorer', 'darwin': 'open'}
-            subprocess.run([navig[sys.platform], self.path])
+            subprocess.run([navig[sys.platform], self.path_out])
 
 
 if __name__ == '__main__':
-    M14 = MetroLineMap('M14', '#662483', data.M14_data)
-    M14.generate_map()
-
-    # T11 = MetroLineMap('T11', '#F28F40', data.T11_data)
-    # T11.generate_map()
+    MetroLineMap('M14', CouleursIDFM.VIOLET, data.M14_data).generate_map()
