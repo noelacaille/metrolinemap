@@ -5,6 +5,25 @@ from PIL import ImageFont, ImageDraw, Image
 import data
 
 
+"""
+TODO
+Disposition corresp (2x2, 2x3, 3x3, etc)
+Régler pb sous-noms
+Gérer spacing en fonction nb corresp
+Gérer sous-direction
+Gérer aéroports
+Logo Gare Grandes Lignes
+Gérer branches
+Gérer boucles
+Convertisseur texte vers data
+Afficher logo ligne à gauche
+Couleur ligne depuis logo
+Créer éditeur logos lignes
+README.md
+Autres lignes (TVM, Orlyval)
+"""
+
+
 BLACK = '#000000'
 WHITE = '#FFFFFF'
 BLEU_PARISINE = '#1A3C90'
@@ -141,8 +160,8 @@ class MetroLineMap:
         self.pfxcorresp_dict = {'M': int, 'T': int, 'C': int, 'B': int, 'R': str, 'S': str}
         pfxcorresp = list(self.pfxcorresp_dict)
         pfxcorresp.extend([f'p:{i}' for i in pfxcorresp])
-        
-        self.draw_image(f'img/{self.name[1:]}.png', 100, 100, 200, 200)
+
+        # self.draw_image(f'img/{self.name[1:]}.png', 100, 100, 200, 200)
 
         last_station = ''
         max_nbcorr = 0
